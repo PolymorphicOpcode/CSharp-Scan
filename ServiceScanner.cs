@@ -1,4 +1,4 @@
-class ServiceScanner : NetworkScanner {
+class ServiceScanner {
     private List<string> _results = new List<string>();
 
     public ServiceScanner() {
@@ -7,7 +7,7 @@ class ServiceScanner : NetworkScanner {
     public string ServiceResult() {
         return "Result: ";
     }
-    public override void PerformScan() {
+    public virtual void PerformScan() {
 
     }
 }

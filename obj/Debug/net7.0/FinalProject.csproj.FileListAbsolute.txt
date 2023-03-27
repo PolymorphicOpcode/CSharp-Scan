@@ -1,0 +1,17 @@
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/FinalProject.csproj.AssemblyReference.cache
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/FinalProject.GeneratedMSBuildEditorConfig.editorconfig
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/FinalProject.AssemblyInfoInputs.cache
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/FinalProject.AssemblyInfo.cs
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/FinalProject.csproj.CoreCompileInputs.cache
+/Users/sam/Desktop/CSharp-Scan/bin/Debug/net7.0/FinalProject
+/Users/sam/Desktop/CSharp-Scan/bin/Debug/net7.0/FinalProject.deps.json
+/Users/sam/Desktop/CSharp-Scan/bin/Debug/net7.0/FinalProject.runtimeconfig.json
+/Users/sam/Desktop/CSharp-Scan/bin/Debug/net7.0/FinalProject.dll
+/Users/sam/Desktop/CSharp-Scan/bin/Debug/net7.0/FinalProject.pdb
+/Users/sam/Desktop/CSharp-Scan/bin/Debug/net7.0/DnsClient.dll
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/FinalProject.csproj.CopyComplete
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/FinalProject.dll
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/refint/FinalProject.dll
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/FinalProject.pdb
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/FinalProject.genruntimeconfig.cache
+/Users/sam/Desktop/CSharp-Scan/obj/Debug/net7.0/ref/FinalProject.dll
