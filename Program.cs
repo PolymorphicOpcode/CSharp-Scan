@@ -15,33 +15,47 @@ class Program {
                 case 0:
                     return;
                 case 1:
-                    DNSScanner dnsScanner = new DNSScanner();
+                    Console.Write("Host: ");
+                    string host = Console.ReadLine();
+                    DnsScanner dnsScanner = new DnsScanner(host);
                     dnsScanner.PerformScan();
                     break;
                 case 2:
-                    Console.WriteLine("Server to scan: ");
-                    string host = Console.ReadLine();
-                    FTPScanner ftpScanner = new FTPScanner(host);
+                    Console.Write("Server to scan: ");
+                    string ftphost = Console.ReadLine();
+                    FtpScanner ftpScanner = new FtpScanner(ftphost);
                     ftpScanner.PerformScan();
                     break;
                 case 3:
-                    HTTPScanner httpScanner = new HTTPScanner();
+                    Console.Write("Host");
+                    string httphost = Console.ReadLine();
+                    HTTPScanner httpScanner = new HTTPScanner(httphost);
                     httpScanner.PerformScan();
                     break;
                 case 4:
-                    IPScanner ipScanner = new IPScanner();
+                    Console.Write("IP address to scan: ");
+                    string ipAddress = Console.ReadLine();
+                    IpScanner ipScanner = new IpScanner(System.Net.IPAddress.Parse(ipAddress));
                     ipScanner.PerformScan();
                     break;
                 case 5:
-                    NetworkScanner networkScanner = new NetworkScanner();
+                    Console.Write("Enter Network");
+                    string nethost = Console.ReadLine();
+                    NetworkScanner networkScanner = new NetworkScanner(System.Net.IPAddress.Parse(nethost));
                     networkScanner.PerformScan();
                     break;
                 case 6:
-                    PortScanner portScanner = new PortScanner();
+                    Console.Write("Host: ");
+                    string portIP = Console.ReadLine();
+                    Console.Write("Port: ");
+                    int port = Int32.Parse(Console.ReadLine());
+                    PortScanner portScanner = new PortScanner(portIP, port);
                     portScanner.PerformScan();
                     break;
                 case 7:
-                    SMTPScanner smtpScanner = new SMTPScanner();
+                    Console.Write("Host: ");
+                    string smtphost = Console.ReadLine();
+                    SMTPScanner smtpScanner = new SMTPScanner(smtphost);
                     smtpScanner.PerformScan();
                     break;
                 default:

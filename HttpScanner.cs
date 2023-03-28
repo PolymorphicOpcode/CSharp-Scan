@@ -1,51 +1,40 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 
-class HTTPScanner : ServiceScanner {
-    private List<string> _results = new List<string>();
+class HTTPScanner : ServiceScanner
+{
+    private readonly string _hostname;
+    private readonly int _port;
 
-    public HTTPScanner() {
-
+    public HTTPScanner(string hostname, int port = 80, NetworkCredential credentials = null) 
+        : base(hostname, port, credentials) 
+    {
+        _hostname = hostname;
+        _port = port;
     }
 
-    public override void PerformScan() {
-        Console.Write("Enter the website to scan (e.g. www.example.com): ");
-        string website = Console.ReadLine();
+    protected override void Scan()
+    {
+        try
+        {
+            // Build a URI based on the HTTP protocol, host and port
+            var uri = new UriBuilder("http", _hostname, _port).Uri;
+            var request = (HttpWebRequest)WebRequest.Create(uri);
+            request.Method = "HEAD";
+            request.Timeout = 5000;
 
-        try {
-            // Check if index.html exists
-            string indexUrl = $"http://{website}/index.html";
-            HttpWebRequest indexRequest = (HttpWebRequest)WebRequest.Create(indexUrl);
-            indexRequest.Method = "HEAD";
-            using (HttpWebResponse indexResponse = (HttpWebResponse)indexRequest.GetResponse()) {
-                if (indexResponse.StatusCode == HttpStatusCode.OK) {
-                    _results.Add($"Index file found at {indexUrl}");
-                }
-            }
-
-            // Check if robots.txt exists
-            string robotsUrl = $"http://{website}/robots.txt";
-            HttpWebRequest robotsRequest = (HttpWebRequest)WebRequest.Create(robotsUrl);
-            robotsRequest.Method = "HEAD";
-            using (HttpWebResponse robotsResponse = (HttpWebResponse)robotsRequest.GetResponse()) {
-                if (robotsResponse.StatusCode == HttpStatusCode.OK) {
-                    _results.Add($"Robots file found at {robotsUrl}");
-                }
-            }
-
-            if (_results.Count > 0) {
-                Console.WriteLine("HTTP Results:");
-                foreach (string result in _results) {
-                    Console.WriteLine(result);
-                }
-            }
-            else {
-                Console.WriteLine("No index or robots files found.");
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                Console.WriteLine($"HTTP server at {_hostname}:{_port} returned status code {response.StatusCode}.");
             }
         }
-        catch (Exception ex) {
-            Console.WriteLine($"Error scanning HTTP service: {ex.Message}");
+        catch (WebException ex)
+        {
+            Console.WriteLine($"Error scanning HTTP server: {ex.Message}");
+        }
+        catch (System.TimeoutException ex)
+        {
+            Console.WriteLine($"Timeout scanning HTTP server: {ex.Message}");
         }
     }
 }

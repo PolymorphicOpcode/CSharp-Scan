@@ -1,58 +1,74 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Threading;
 
-class NetworkScanner : ServiceScanner {
-    private List<string> _results = new List<string>();
-
-    public NetworkScanner() {
-
+class NetworkScanner : IpScanner {
+    public NetworkScanner(IPAddress ipAddress) : base(ipAddress){}
+    
+    public static void GetNetworkAndSubnetMaskFromAddress(IPAddress address, out IPAddress network, out IPAddress subnetMask) {
+        byte[] ipBytes = address.GetAddressBytes();
+        byte[] subnetMaskBytes = new byte[ipBytes.Length];
+        int bits = ipBytes.Length * 8;
+        int mask = bits;
+        for (int i = 0; i < ipBytes.Length; i++) {
+            int bitCount = Math.Min(8, mask);
+            subnetMaskBytes[i] = (byte) (255 << (8 - bitCount));
+            mask -= bitCount;
+        }
+        network = new IPAddress(ipBytes.Zip(subnetMaskBytes, (a, b) => (byte) (a & b)).ToArray());
+        subnetMask = new IPAddress(subnetMaskBytes);
     }
 
-    public override void PerformScan() {
-        Console.Write("Enter the network to scan in CIDR format (e.g. 192.168.1.0/24): ");
-        string network = Console.ReadLine();
 
-        try {
-            IPAddress networkAddress = IPAddress.Parse(network.Substring(0, network.IndexOf("/")));
-            int subnetMaskLength = int.Parse(network.Substring(network.IndexOf("/") + 1));
-
-            byte[] subnetMaskBytes = Enumerable.Range(0, 4)
-                .Select(i => i < subnetMaskLength / 8 ? (byte)255 : (byte)(255 << (8 - subnetMaskLength % 8)))
-                .ToArray();
-
-            IPAddress subnetMask = new IPAddress(subnetMaskBytes);
-            uint subnetMaskValue = BitConverter.ToUInt32(subnetMaskBytes.Reverse().ToArray(), 0);
-
-            byte[] networkAddressBytes = networkAddress.GetAddressBytes();
-            uint networkAddressValue = BitConverter.ToUInt32(networkAddressBytes.Reverse().ToArray(), 0);
-
-            uint broadcastAddressValue = networkAddressValue | ~subnetMaskValue;
-
-            IPAddress broadcastAddress = new IPAddress(BitConverter.GetBytes(broadcastAddressValue).Reverse().ToArray());
-
-            Console.WriteLine($"Scanning network {network}...");
-
-            for (uint i = networkAddressValue + 1; i < broadcastAddressValue; i++) {
-                PingReply reply = null;
-                byte[] addressBytes = BitConverter.GetBytes(i).Reverse().ToArray();
-                IPAddress address = new IPAddress(addressBytes);
-
-                IPScanner scanner = new IPScanner();
-                bool isSuccessful = scanner.Ping(address);
-                if (isSuccessful) {
-                    Console.WriteLine($"{address} is up.");
-                }
+    protected IPAddress GetIpAddressFromNetworkAndOffset(IPAddress networkAddress, int subnetMaskLength, int offset) {
+        byte[] networkBytes = networkAddress.GetAddressBytes();
+        int hostBitsLength = 32 - subnetMaskLength;
+        if (BitConverter.IsLittleEndian) {
+            Array.Reverse(networkBytes);
+        }
+        int ip = BitConverter.ToInt32(networkBytes, 0);
+        ip += offset;
+        byte[] resultBytes = BitConverter.GetBytes(ip);
+        if (BitConverter.IsLittleEndian) {
+            Array.Reverse(resultBytes);
+        }
+        Array.Resize(ref resultBytes, 4);
+        return new IPAddress(resultBytes);
+    }
 
 
-                if (reply.Status == IPStatus.Success) {
-                    Console.WriteLine($"{address} is up.");
-                }
-            }
-        } catch (Exception ex) {
-            Console.WriteLine($"Error scanning network: {ex.Message}");
+    public new void PerformScan() {
+        Console.Write("Enter the IP address range to scan (CIDR notation allowed): ");
+        string range = Console.ReadLine();
+
+        IPAddress ipAddress;
+        if (!IPAddress.TryParse(range, out ipAddress)) {
+            Console.WriteLine("Invalid IP address range.");
+            return;
+        }
+
+        IPAddress networkAddress;
+        int subnetMaskLength;
+        IPAddress subnetMask;
+        GetNetworkAndSubnetMaskFromAddress(ipAddress, out networkAddress, out subnetMask);
+
+        Console.WriteLine($"Scanning network: {networkAddress}/{subnetMask}");
+
+        for (int i = 1; i < (1 << (32 - subnetMask)); i++) {
+            IPAddress currentIpAddress = GetIpAddressFromNetworkAndOffset(networkAddress, subnetMaskLength, i);
+
+            Thread thread = new Thread(() => ScanIpAddress(currentIpAddress));
+            thread.Start();
+        }
+    }
+
+    private void ScanIpAddress(IPAddress ipAddress) {
+        Ping ping = new Ping();
+        PingReply pingReply = ping.Send(ipAddress);
+
+        if (pingReply.Status == IPStatus.Success) {
+            Console.WriteLine($"Host found: {ipAddress}");
         }
     }
 }

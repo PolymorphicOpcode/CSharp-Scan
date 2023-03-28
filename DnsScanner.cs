@@ -1,35 +1,28 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
-using DnsClient;
 
-class DNSScanner : ServiceScanner {
-public override void PerformScan()
+class DnsScanner : ServiceScanner
 {
-    Console.Write("Enter the domain name to scan: ");
-    string domainName = Console.ReadLine();
+    private readonly string _hostname;
+    private readonly int _port;
 
-    try
+    public DnsScanner(string hostname, int port = 53, NetworkCredential credentials = null)
+        : base(hostname, port, credentials)
     {
-        LookupClient client = new LookupClient();
-        client.UseCache = true;
+        _hostname = hostname;
+        _port = port;
+    }
 
-        var result = client.Query(domainName, QueryType.A);
-
-        var dnsRecords = result.Answers.ARecords();
-
-        var ips = dnsRecords.Select(r => r.Address.ToString());
-
-        Console.WriteLine($"IP addresses for {domainName}:");
-        foreach (var ip in ips)
+    protected override void Scan()
+    {
+        try
         {
-            Console.WriteLine(ip);
+            var entry = Dns.GetHostEntry(_hostname);
+            Console.WriteLine($"DNS resolution succeeded: {entry.HostName} ({entry.AddressList[0]})");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DNS resolution failed: {ex.Message}");
         }
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error scanning DNS records: {ex.Message}");
-    }
-}
-
 }

@@ -1,38 +1,37 @@
 using System;
 using System.Net;
-using System.Net.NetworkInformation;
+using System.Net.Sockets;
 
-class IPScanner : ServiceScanner {
-    private List<string> _results = new List<string>();
+class IpScanner : ServiceScanner
+{
+    protected readonly string _ipAddress;
+    protected readonly int _port;
 
-    public IPScanner() {
-
+    public IpScanner(IPAddress ipAddress, int port = 80, NetworkCredential credentials = null)
+        : base(ipAddress.ToString(), port, credentials)
+    {
+        _ipAddress = ipAddress.ToString();
+        _port = port;
     }
 
-    public override void PerformScan() {
-        Console.Write("Enter the IP address to scan: ");
-        string ipAddress = Console.ReadLine();
+    protected override void Scan() {
+    // Build a string with the IP address and port
+    var endpoint = $"{_ipAddress}:{_port}";
 
-        try {
-            Ping ping = new Ping();
-            PingReply reply = ping.Send(IPAddress.Parse(ipAddress));
-
-            if (reply.Status == IPStatus.Success) {
-                Console.WriteLine($"{ipAddress} is up.");
-            } else {
-                Console.WriteLine($"{ipAddress} is down.");
-            }
-        } catch (Exception ex) {
-            Console.WriteLine($"Error scanning IP address: {ex.Message}");
+    try
+    {
+        // Create a TCP client and connect to the endpoint
+        using (var client = new TcpClient())
+        {
+            client.ReceiveTimeout = 5000;
+            client.SendTimeout = 5000;
+            client.Connect(_ipAddress, _port);
+            Console.WriteLine($"Connected to {endpoint}");
         }
     }
-
-    public bool Ping(IPAddress address) {
-        using (Ping ping = new Ping()) {
-            PingReply reply = ping.Send(address);
-            return (reply.Status == IPStatus.Success);
-        }
+    catch (SocketException ex)
+    {
+        Console.WriteLine($"Error connecting to {endpoint}: {ex.Message}");
     }
-
-
+}
 }

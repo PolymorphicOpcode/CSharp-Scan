@@ -1,33 +1,33 @@
-using System;
 using System.Net;
 using System.Net.Mail;
 
-class SMTPScanner : ServiceScanner {
-    public SMTPScanner() {
-
+class SMTPScanner : ServiceScanner
+{
+    public SMTPScanner(string hostname, int port = 25, NetworkCredential credentials = null)
+        : base(hostname, port, credentials)
+    {
     }
 
-    public override void PerformScan() {
-        Console.Write("Enter the SMTP server address: ");
-        string server = Console.ReadLine();
-
-        Console.Write("Enter the username: ");
-        string username = Console.ReadLine();
-
-        Console.Write("Enter the password: ");
-        string password = Console.ReadLine();
-
-        try {
-            using (SmtpClient client = new SmtpClient(server)) {
-                client.Credentials = new NetworkCredential(username, password);
+    protected override void Scan()
+    {
+        try
+        {
+            using (var client = new SmtpClient(base._hostname, base._port))
+            {
+                if (base._credentials != null)
+                {
+                    client.Credentials = base._credentials;
+                }
                 client.Timeout = 5000;
-
-                client.Send(new MailMessage("test@test.com", "test@test.com", "Test subject", "Test body"));
-
-                Console.WriteLine("SMTP login successful.");
+                client.EnableSsl = true;
+                client.Send(new MailMessage());
+                Console.WriteLine($"SMTP server {base._hostname} is up.");
+                PerformScan();
             }
-        } catch (Exception ex) {
-            Console.WriteLine($"SMTP login failed: {ex.Message}");
+        }
+        catch (SmtpException ex)
+        {
+            Console.WriteLine($"Error connecting to SMTP server {base._hostname}: {ex.Message}");
         }
     }
 }
