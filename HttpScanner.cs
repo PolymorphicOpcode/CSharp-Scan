@@ -3,8 +3,8 @@ using System.Net;
 
 class HTTPScanner : ServiceScanner
 {
-    private readonly string _hostname;
-    private readonly int _port;
+    private new readonly string _hostname;
+    private new readonly int _port;
 
     public HTTPScanner(string hostname, int port = 80, NetworkCredential credentials = null) 
         : base(hostname, port, credentials) 

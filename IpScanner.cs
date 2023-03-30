@@ -5,7 +5,7 @@ using System.Net.Sockets;
 class IpScanner : ServiceScanner
 {
     protected readonly string _ipAddress;
-    protected readonly int _port;
+    protected new readonly int _port;
 
     public IpScanner(IPAddress ipAddress, int port = 80, NetworkCredential credentials = null)
         : base(ipAddress.ToString(), port, credentials)

@@ -4,7 +4,7 @@ using System.Net.Sockets;
 
 class PortScanner : ServiceScanner
 {
-    private readonly int _port;
+    private new readonly int _port;
     private string Hostname;
 
     public PortScanner(string hostname, int port) : base(hostname)

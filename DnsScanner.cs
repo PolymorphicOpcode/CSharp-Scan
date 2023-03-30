@@ -3,8 +3,8 @@ using System.Net;
 
 class DnsScanner : ServiceScanner
 {
-    private readonly string _hostname;
-    private readonly int _port;
+    private new readonly string _hostname;
+    private new readonly int _port;
 
     public DnsScanner(string hostname, int port = 53, NetworkCredential credentials = null)
         : base(hostname, port, credentials)
